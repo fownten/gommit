@@ -13,6 +13,13 @@ Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lipglos
 
 ## Installation
 
+### Using go install
+If you have Go installed and your GOBIN is in your PATH, you can install directly:
+
+```bash
+go install github.com/fownten/gommit@latest
+```
+
 ### From Source
 Ensure you have Go installed, then clone and build:
 
