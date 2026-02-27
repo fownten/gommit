@@ -12,6 +12,7 @@ const (
 	Added    FileStatus = "Added"
 	Modified FileStatus = "Modified"
 	Deleted  FileStatus = "Deleted"
+	Renamed  FileStatus = "Renamed"
 	Unknown  FileStatus = "Unknown"
 )
 
@@ -51,6 +52,12 @@ func ParsePorcelainStatus(output string) []StagedFile {
 			status = Modified
 		case 'D':
 			status = Deleted
+		case 'R':
+			status = Renamed
+			// Renamed files look like "old -> new"
+			if idx := strings.Index(path, " -> "); idx != -1 {
+				path = path[idx+4:]
+			}
 		default:
 			// If it's not in the index (staged), we skip it for this tool
 			continue

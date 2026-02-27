@@ -40,6 +40,13 @@ func TestParsePorcelainStatus(t *testing.T) {
 				{Path: "existing.go", Status: Modified},
 			},
 		},
+		{
+			name:  "renamed file",
+			input: "R  old.go -> new.go\n",
+			expected: []StagedFile{
+				{Path: "new.go", Status: Renamed},
+			},
+		},
 	}
 
 	for _, tt := range tests {
