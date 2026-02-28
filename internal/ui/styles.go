@@ -29,6 +29,18 @@ var (
 				Foreground(SecondaryColor).
 				Bold(true)
 
+	PillStyle = lipgloss.NewStyle().
+			Padding(0, 1).
+			MarginRight(1).
+			Foreground(DimColor)
+
+	SelectedPillStyle = lipgloss.NewStyle().
+				Padding(0, 1).
+				MarginRight(1).
+				Background(PrimaryColor).
+				Foreground(lipgloss.Color("#FFFFFF")).
+				Bold(true)
+
 	InputStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).
 			BorderForeground(DimColor).

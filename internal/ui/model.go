@@ -62,13 +62,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch m.State {
 		case StateSelectingType:
 			switch msg.String() {
-			case "up", "k":
+			case "left", "h", "up", "k":
 				if m.SelectedIdx > 0 {
 					m.SelectedIdx--
 				}
-			case "down", "j":
+			case "right", "l", "down", "j", "tab":
 				if m.SelectedIdx < len(m.CommitTypes)-1 {
 					m.SelectedIdx++
+				} else if msg.String() == "tab" {
+					m.SelectedIdx = 0
 				}
 			case "enter":
 				m.State = StateEnteringDescription
@@ -121,17 +123,17 @@ func (m Model) View() string {
 
 	switch m.State {
 	case StateSelectingType:
-		s.WriteString("Select commit type:\n")
-		var list strings.Builder
+		s.WriteString("Select commit type:\n\n")
+		var items []string
 		for i, t := range m.CommitTypes {
 			if i == m.SelectedIdx {
-				list.WriteString(SelectedItemStyle.Render(fmt.Sprintf("> %s", t)))
+				items = append(items, SelectedPillStyle.Render(t))
 			} else {
-				list.WriteString(ItemStyle.Render(fmt.Sprintf("  %s", t)))
+				items = append(items, PillStyle.Render(t))
 			}
-			list.WriteString("\n")
 		}
-		s.WriteString(ListStyle.Render(list.String()))
+		s.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, items...))
+		s.WriteString("\n")
 
 	case StateEnteringDescription:
 		s.WriteString(fmt.Sprintf("Type: %s\n\n", m.CommitTypes[m.SelectedIdx]))
