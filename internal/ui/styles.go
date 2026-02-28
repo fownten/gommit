@@ -4,20 +4,21 @@ import "github.com/charmbracelet/lipgloss"
 
 var (
 	// Colors
-	PrimaryColor   = lipgloss.Color("#7D56F4")
-	SecondaryColor = lipgloss.Color("#04B575")
-	ErrorColor     = lipgloss.Color("#FF4C4C")
-	DimColor       = lipgloss.Color("#777777")
+	PinkPastel = lipgloss.Color("#F48FB1")
+	BluePastel = lipgloss.Color("#90CAF9")
+	ErrorColor = lipgloss.Color("#FF4C4C")
+	GrayPastel = lipgloss.Color("#B0BEC5")
+	DarkGray   = lipgloss.Color("#12424a")
 
 	// Styles
 	TitleStyle = lipgloss.NewStyle().
-			Foreground(PrimaryColor).
+			Foreground(PinkPastel).
 			Bold(true).
 			MarginBottom(1)
 
 	ListStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(PrimaryColor).
+			BorderForeground(PinkPastel).
 			Padding(1).
 			MarginBottom(1)
 
@@ -26,43 +27,43 @@ var (
 
 	SelectedItemStyle = lipgloss.NewStyle().
 				PaddingLeft(2).
-				Foreground(SecondaryColor).
+				Foreground(BluePastel).
 				Bold(true)
 
 	PillStyle = lipgloss.NewStyle().
 			Padding(0, 1).
 			MarginRight(1).
-			Foreground(DimColor)
+			Foreground(PinkPastel)
 
 	SelectedPillStyle = lipgloss.NewStyle().
 				Padding(0, 1).
 				MarginRight(1).
-				Background(PrimaryColor).
-				Foreground(lipgloss.Color("#FFFFFF")).
+				Background(PinkPastel).
+				Foreground(DarkGray).
 				Bold(true)
 
 	InputStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).
-			BorderForeground(DimColor).
+			BorderForeground(GrayPastel).
 			Padding(0, 1)
 
 	FocusedInputStyle = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder()).
-				BorderForeground(PrimaryColor).
+				BorderForeground(PinkPastel).
 				Padding(0, 1)
 
 	ButtonStyle = lipgloss.NewStyle().
-			Foreground(DimColor).
+			Foreground(GrayPastel).
 			Border(lipgloss.NormalBorder()).
-			BorderForeground(DimColor).
+			BorderForeground(GrayPastel).
 			Padding(0, 3).
 			MarginTop(1).
 			MarginRight(2)
 
 	ActiveButtonStyle = lipgloss.NewStyle().
-				Foreground(PrimaryColor).
+				Foreground(PinkPastel).
 				Border(lipgloss.ThickBorder()).
-				BorderForeground(PrimaryColor).
+				BorderForeground(PinkPastel).
 				Padding(0, 3).
 				MarginTop(1).
 				MarginRight(2).
