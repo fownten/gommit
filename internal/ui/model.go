@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -24,6 +25,8 @@ type Model struct {
 	CommitTypes     []string
 	SelectedIdx     int
 	Description     textinput.Model
+	Body            textarea.Model
+	FocusedInput    int // 0 for Description (summary), 1 for Body
 	StagedFiles     []git.StagedFile
 	Confirmed       bool
 	FinalMsg        string
@@ -32,14 +35,21 @@ type Model struct {
 
 func NewModel(staged []git.StagedFile) Model {
 	ti := textinput.New()
-	ti.Placeholder = "Enter commit description..."
+	ti.Placeholder = "Enter commit summary (subject)..."
 	ti.Focus()
+
+	ta := textarea.New()
+	ta.Placeholder = "Optional details (Body)..."
+	ta.SetHeight(5)
+	ta.SetWidth(60)
 
 	return Model{
 		State:           StateSelectingType,
 		CommitTypes:     []string{"feat", "fix", "chore"},
 		SelectedIdx:     0,
 		Description:     ti,
+		Body:            ta,
+		FocusedInput:    0,
 		StagedFiles:     staged,
 		ConfirmSelected: 0,
 	}
@@ -79,15 +89,40 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case StateEnteringDescription:
 			switch msg.String() {
+			case "tab":
+				if m.FocusedInput == 0 {
+					m.FocusedInput = 1
+					m.Body.Focus()
+					m.Description.Blur()
+				} else {
+					m.FocusedInput = 0
+					m.Description.Focus()
+					m.Body.Blur()
+				}
 			case "enter":
-				if strings.TrimSpace(m.Description.Value()) != "" {
-					m.FinalMsg = m.generateMessage()
-					m.State = StateConfirming
+				if m.FocusedInput == 0 {
+					if strings.TrimSpace(m.Description.Value()) != "" {
+						m.FinalMsg = m.generateMessage()
+						m.State = StateConfirming
+					}
+				} else {
+					m.Body, cmd = m.Body.Update(msg)
+				}
+			case "ctrl+enter":
+				if m.FocusedInput == 1 {
+					if strings.TrimSpace(m.Description.Value()) != "" {
+						m.FinalMsg = m.generateMessage()
+						m.State = StateConfirming
+					}
 				}
 			case "esc":
 				m.State = StateSelectingType
 			default:
-				m.Description, cmd = m.Description.Update(msg)
+				if m.FocusedInput == 0 {
+					m.Description, cmd = m.Description.Update(msg)
+				} else {
+					m.Body, cmd = m.Body.Update(msg)
+				}
 			}
 
 		case StateConfirming:
@@ -137,8 +172,22 @@ func (m Model) View() string {
 
 	case StateEnteringDescription:
 		s.WriteString(fmt.Sprintf("Type: %s\n\n", m.CommitTypes[m.SelectedIdx]))
-		s.WriteString("Enter description:\n")
-		s.WriteString(FocusedInputStyle.Render(m.Description.View()))
+
+		s.WriteString("Summary (Subject):\n")
+		if m.FocusedInput == 0 {
+			s.WriteString(FocusedInputStyle.Render(m.Description.View()))
+		} else {
+			s.WriteString(InputStyle.Render(m.Description.View()))
+		}
+		s.WriteString("\n\n")
+
+		s.WriteString("Optional Details (Body):\n")
+		if m.FocusedInput == 1 {
+			s.WriteString(FocusedInputStyle.Render(m.Body.View()))
+		} else {
+			s.WriteString(InputStyle.Render(m.Body.View()))
+		}
+		s.WriteString("\n\n(Tab to switch fields, Enter to confirm from Summary, Ctrl+Enter to confirm from Body)\n")
 
 	case StateConfirming, StateDone:
 		s.WriteString("Preview:\n")
@@ -161,8 +210,16 @@ func (m Model) View() string {
 
 func (m Model) generateMessage() string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("%s: %s\n\n", m.CommitTypes[m.SelectedIdx], m.Description.Value()))
-	sb.WriteString("Staged files:\n")
+	sb.WriteString(fmt.Sprintf("%s: %s\n", m.CommitTypes[m.SelectedIdx], m.Description.Value()))
+
+	body := strings.TrimSpace(m.Body.Value())
+	if body != "" {
+		sb.WriteString("\n")
+		sb.WriteString(body)
+		sb.WriteString("\n")
+	}
+
+	sb.WriteString("\nStaged files:\n")
 	for _, f := range m.StagedFiles {
 		sb.WriteString(fmt.Sprintf("- [%s] %s\n", f.Status, f.Path))
 	}
